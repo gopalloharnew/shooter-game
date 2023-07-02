@@ -1,11 +1,11 @@
 export class Player {
   constructor({ canvasSize }) {
     this.canvasSize = canvasSize;
-    this.radius = this.canvasSize / 15;
+    this.radius = this.canvasSize / 20;
     this.ringWidth = this.canvasSize / 200;
     this.gapAngle = Math.PI / 8;
     this.color = "hsl(222, 100%, 95%)";
-    this.currentDirectionAngle = (Math.PI * 3) / 3;
+    this.currentDirectionAngle = (Math.PI * 3) / 2;
     this.position = { x: this.canvasSize / 2, y: this.canvasSize / 2 };
     this.muzzlePosition = {
       x: this.position.x + this.radius * Math.cos(this.currentDirectionAngle),
@@ -32,7 +32,7 @@ export class Player {
     context.arc(
       this.position.x,
       this.position.y,
-      (this.radius * 5) / 8,
+      (this.radius * 6) / 10,
       0,
       Math.PI * 2,
       false
@@ -47,7 +47,17 @@ export class Player {
     context.stroke();
   }
 
-  update({ context }) {
+  update({ context, pointer }) {
+    this.currentDirectionAngle =
+      Math.PI +
+      Math.atan2(
+        this.position.y - pointer.position.y,
+        this.position.x - pointer.position.x
+      );
+    this.muzzlePosition = {
+      x: this.position.x + this.radius * Math.cos(this.currentDirectionAngle),
+      y: this.position.y + this.radius * Math.sin(this.currentDirectionAngle),
+    };
     this.draw({ context });
   }
 }
