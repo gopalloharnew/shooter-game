@@ -1,0 +1,34 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: hsl(222, 11%, 8%);
+  --bg-secondary: hsl(222, 11%, 11%);
+  --text-primary: hsl(0, 0%, 100%);
+  --outline-primary: 1px solid hsl(222, 11%, 22%);
+  color-scheme: dark;
+}
+
+html,
+body {
+  width: 100svw;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.game-canvas {
+  --size: 100svmin;
+  width: var(--size);
+  height: var(--size);
+  background-color: var(--bg-secondary);
+  outline: var(--outline-primary);
+}
