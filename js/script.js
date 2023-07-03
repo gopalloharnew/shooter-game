@@ -1,4 +1,5 @@
 import { Player } from "./Player.js";
+import { Enemy } from "./Enemy.js";
 
 // Initializing Canvas
 const MAX_FPS = 60;
@@ -33,15 +34,21 @@ function animate(currentTime) {
   player.bullets.fired.forEach((bullet) => {
     bullet.update({ context, deltaTime });
   });
+  enemy.update({ context, deltaTime });
+
+  const frameRate = Math.floor(1000 / deltaTime);
+  // context.font = "25px sans-serif";
+  // context.fillText(frameRate, 25, 25);
 }
 
 context.fillStyle = canvasBgOpaque;
 context.fillRect(0, 0, canvasSize, canvasSize);
 window.requestAnimationFrame(animate);
+let enemy = new Enemy({ canvasSize, player });
 
 function setMousePosition(x, y) {
-  pointer.position.x = x - canvasRect.x;
-  pointer.position.y = y - canvasRect.y;
+  pointer.position.x = (x - canvasRect.x) * window.devicePixelRatio;
+  pointer.position.y = (y - canvasRect.y) * window.devicePixelRatio;
 }
 
 canvas.addEventListener("mousemove", (e) => {
