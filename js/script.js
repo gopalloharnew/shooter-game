@@ -14,7 +14,7 @@ if (window.innerWidth > window.innerHeight) {
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 const context = canvas.getContext("2d");
-const canvasBg = "hsla(222, 11%, 11%, 0.2)";
+const canvasBg = "hsla(222, 11%, 11%, 0.25)";
 const canvasBgOpaque = "hsla(222, 11%, 11%, 1)";
 const pointer = { position: { x: canvasSize / 2, y: canvasSize / 4 } };
 
@@ -30,11 +30,14 @@ function animate(currentTime) {
 
   context.fillStyle = canvasBg;
   context.fillRect(0, 0, canvasSize, canvasSize);
-  player.update({ context, pointer });
+
   player.bullets.fired.forEach((bullet) => {
     bullet.update({ context, deltaTime });
   });
-  enemy.update({ context, deltaTime });
+  player.enemies.forEach((enemy) => {
+    enemy.update({ context, deltaTime });
+  });
+  player.update({ context, pointer });
 
   const frameRate = Math.floor(1000 / deltaTime);
   // context.font = "25px sans-serif";
@@ -44,7 +47,6 @@ function animate(currentTime) {
 context.fillStyle = canvasBgOpaque;
 context.fillRect(0, 0, canvasSize, canvasSize);
 window.requestAnimationFrame(animate);
-let enemy = new Enemy({ canvasSize, player });
 
 function setMousePosition(x, y) {
   pointer.position.x = (x - canvasRect.x) * window.devicePixelRatio;

@@ -1,4 +1,6 @@
 import { Bullet } from "./Bullet.js";
+import { Enemy } from "./Enemy.js";
+import { getRandomInteger } from "./utils.js";
 
 export class Player {
   constructor({ canvasSize, canvasBgOpaque }) {
@@ -7,7 +9,7 @@ export class Player {
     this.radius = this.canvasSize / 20;
     this.ringWidth = this.canvasSize / 200;
     this.bulletRadius = this.ringWidth;
-    this.bulletSpeed = this.bulletRadius * 20;
+    this.bulletSpeed = this.bulletRadius * 60; // TODO: 25
     this.gapAngle = Math.PI / 8;
     this.color = "hsl(222, 100%, 95%)";
     this.currentDirectionAngle = (Math.PI * 3) / 2;
@@ -20,6 +22,17 @@ export class Player {
       loaded: [],
       fired: [],
     };
+    this.enemies = [];
+    this.generateEnemy();
+  }
+
+  generateEnemy() {
+    setTimeout(() => {
+      this.enemies.push(
+        new Enemy({ canvasSize: this.canvasSize, player: this })
+      );
+      this.generateEnemy();
+    }, 2000 + getRandomInteger(0, 2000));
   }
 
   draw({ context }) {

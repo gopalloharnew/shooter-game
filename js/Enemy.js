@@ -8,7 +8,7 @@ export class Enemy {
     };
     this.canvasSize = canvasSize;
     this.minRadius = Math.floor(this.canvasSize / 60);
-    this.radius = Math.floor(this.minRadius * (1 + Math.random() * 3));
+    this.radius = Math.floor(this.minRadius * (1 + Math.random() * 2));
     this.position = this.getRandomEnemyPosition();
     this.speed = player.bulletSpeed / 3;
     this.directionAngle = Math.atan2(
@@ -19,7 +19,7 @@ export class Enemy {
       x: this.speed * Math.cos(this.directionAngle),
       y: this.speed * Math.sin(this.directionAngle),
     };
-    this.color = "white";
+    this.color = `hsl(${getRandomInteger(0, 360)}, 100%, 50%)`;
   }
 
   getRandomEnemyPosition() {
