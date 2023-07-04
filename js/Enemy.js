@@ -9,6 +9,7 @@ export class Enemy {
     this.canvasSize = canvasSize;
     this.minRadius = Math.floor(this.canvasSize / 60);
     this.radius = Math.floor(this.minRadius * (1 + Math.random() * 2));
+    this.visibleRadius = this.radius;
     this.position = this.getRandomEnemyPosition();
     this.speed = player.bulletSpeed / 3;
     this.directionAngle = Math.atan2(
@@ -44,7 +45,7 @@ export class Enemy {
     context.arc(
       this.position.x,
       this.position.y,
-      this.radius,
+      this.visibleRadius,
       0,
       Math.PI * 2,
       false
@@ -55,6 +56,9 @@ export class Enemy {
   update({ context, deltaTime }) {
     this.position.x += (this.velocity.x * deltaTime) / 1000;
     this.position.y += (this.velocity.y * deltaTime) / 1000;
+    if (this.visibleRadius > this.radius) {
+      this.visibleRadius -= (this.minRadius * 3 * deltaTime) / 1000;
+    }
     this.draw({ context });
   }
 }

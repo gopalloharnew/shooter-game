@@ -22,6 +22,7 @@ let animationId;
 
 const player = new Player({ canvasSize, canvasBgOpaque });
 
+// animate
 let lastPaintTime;
 function animate(currentTime) {
   animationId = window.requestAnimationFrame(animate);
@@ -35,9 +36,35 @@ function animate(currentTime) {
   context.fillRect(0, 0, canvasSize, canvasSize);
 
   player.update({ context, pointer });
-  player.bullets.fired.forEach((bullet) => {
+  player.bullets.fired.forEach((bullet, bulletIndex) => {
+    // going beyond canvas
+    if (
+      bullet.position.x + bullet.radius < 0 ||
+      bullet.position.x + bullet.radius > player.canvasSize ||
+      bullet.position.y + bullet.radius < 0 ||
+      bullet.position.y + bullet.radius > player.canvasSize
+    ) {
+      setTimeout(() => {
+        player.bullets.fired.splice(bulletIndex, 1);
+      }, 0);
+    }
+
+    // collision with enemy
+    player.enemies.forEach((enemy, enemyIndex) => {
+      if (getDistanceBetween(enemy, bullet) <= enemy.radius + bullet.radius) {
+        enemy.radius -= bullet.radius;
+        if (enemy.radius <= enemy.minRadius) {
+          player.enemies.splice(enemyIndex, 1);
+        }
+        setTimeout(() => {
+          player.bullets.fired.splice(bulletIndex, 1);
+        }, 0);
+      }
+    });
+
     bullet.update({ context, deltaTime });
   });
+
   player.enemies.forEach((enemy) => {
     if (
       getDistanceBetween(player, enemy) <=
@@ -58,16 +85,17 @@ context.fillRect(0, 0, canvasSize, canvasSize);
 animationId = window.requestAnimationFrame(animate);
 player.animationId = animationId;
 
-function setMousePosition(x, y) {
+// mouse
+function setPointerPosition(x, y) {
   pointer.position.x = (x - canvasRect.x) * window.devicePixelRatio;
   pointer.position.y = (y - canvasRect.y) * window.devicePixelRatio;
 }
 
 canvas.addEventListener("mousemove", (e) => {
-  setMousePosition(e.x, e.y);
+  setPointerPosition(e.x, e.y);
 });
 
 canvas.addEventListener("click", (e) => {
   player.bullets.loaded.push(1);
-  setMousePosition(e.x, e.y);
+  setPointerPosition(e.x, e.y);
 });

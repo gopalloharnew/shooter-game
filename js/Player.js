@@ -111,19 +111,6 @@ export class Player {
         this.fire();
       }
     }
-
-    this.bullets.fired.forEach((bullet, i) => {
-      if (
-        bullet.position.x + bullet.radius < 0 ||
-        bullet.position.x + bullet.radius > this.canvasSize ||
-        bullet.position.y + bullet.radius < 0 ||
-        bullet.position.y + bullet.radius > this.canvasSize
-      ) {
-        setTimeout(() => {
-          this.bullets.fired.splice(i, 1);
-        }, 0);
-      }
-    });
   }
 
   fire() {
