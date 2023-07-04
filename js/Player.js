@@ -1,6 +1,6 @@
 import { Bullet } from "./Bullet.js";
 import { Enemy } from "./Enemy.js";
-import { getRandomInteger } from "./utils.js";
+import { getRandomInteger, getDistanceBetween } from "./utils.js";
 
 export class Player {
   constructor({ canvasSize, canvasBgOpaque }) {
@@ -102,10 +102,7 @@ export class Player {
       if (this.bullets.fired.length > 0) {
         let lastBullet = this.bullets.fired[this.bullets.fired.length - 1];
         if (
-          Math.hypot(
-            this.position.y - lastBullet.position.y,
-            this.position.x - lastBullet.position.x
-          ) >
+          getDistanceBetween(this, lastBullet) >
           this.radius + this.bulletRadius * 4
         ) {
           this.fire();

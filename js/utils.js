@@ -15,3 +15,10 @@ export function getRandomTrueFalse() {
     return false;
   }
 }
+
+export function getDistanceBetween(obj1, obj2) {
+  return Math.hypot(
+    obj1.position.x - obj2.position.x,
+    obj1.position.y - obj2.position.y
+  );
+}
