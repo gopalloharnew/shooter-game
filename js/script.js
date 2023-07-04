@@ -1,9 +1,11 @@
 import { Player } from "./Player.js";
 import { Particle } from "./Particle.js";
 import { getDistanceBetween } from "./utils.js";
+import { ScoreIncrement } from "./ScoreIncrement.js";
 
 // Initializing Canvas
 const MAX_FPS = 60;
+const LOCAL_SCORE_KEY = "shooterHighScore";
 const canvas = document.querySelector("[data-game-canvas]");
 const canvasRect = canvas.getBoundingClientRect();
 let canvasSize;
@@ -15,10 +17,13 @@ if (window.innerWidth > window.innerHeight) {
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 const context = canvas.getContext("2d");
-const canvasBg = "hsla(222, 11%, 11%, 0.25)";
+const canvasBg = "hsla(222, 11%, 11%, 1)";
 const canvasBgOpaque = "hsla(222, 11%, 11%, 1)";
 const pointer = { position: { x: canvasSize / 2, y: canvasSize / 4 } };
 let animationId;
+
+window.score = 0;
+let highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
 
 const player = new Player({ canvasSize, canvasBgOpaque });
 
@@ -68,6 +73,19 @@ function animate(currentTime) {
           setTimeout(() => {
             player.enemies.splice(enemyIndex, 1);
           }, 0);
+          player.scoreIncrements.push(
+            new ScoreIncrement({
+              increment: 20,
+              bullet,
+            })
+          );
+        } else {
+          player.scoreIncrements.push(
+            new ScoreIncrement({
+              increment: 10,
+              bullet,
+            })
+          );
         }
         setTimeout(() => {
           player.bullets.fired.splice(bulletIndex, 1);
@@ -97,6 +115,13 @@ function animate(currentTime) {
     particle.update({ context, deltaTime });
   });
 
+  player.scoreIncrements.forEach((scoreIncrement, scoreIncrementIndex) => {
+    scoreIncrement.update({ context, deltaTime });
+    if (scoreIncrement.opacity <= 0) {
+      player.scoreIncrements.splice(scoreIncrementIndex, 1);
+    }
+  });
+
   // const frameRate = Math.floor(1000 / deltaTime);
   // if (frameRate < 59) {
   //   context.fillStyle = "red";
@@ -124,3 +149,5 @@ canvas.addEventListener("click", (e) => {
   player.bullets.loaded.push(1);
   setPointerPosition(e.x, e.y);
 });
+
+// Todo: add Keyboard controls

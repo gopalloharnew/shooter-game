@@ -11,7 +11,7 @@ export class Player {
     this.bulletRadius = this.ringWidth;
     this.bulletSpeed = this.bulletRadius * 60; // TODO: 25
     this.gapAngle = Math.PI / 8;
-    this.color = "hsl(222, 100%, 95%)";
+    this.color = "hsla(222, 100%, 95%, 1)";
     this.currentDirectionAngle = (Math.PI * 3) / 2;
     this.position = { x: this.canvasSize / 2, y: this.canvasSize / 2 };
     this.muzzlePosition = {
@@ -24,6 +24,7 @@ export class Player {
     };
     this.enemies = [];
     this.debris = [];
+    this.scoreIncrements = [];
     this.generateEnemy();
   }
 

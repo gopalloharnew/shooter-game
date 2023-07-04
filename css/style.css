@@ -31,4 +31,17 @@ body {
   height: var(--size);
   background-color: var(--bg-secondary);
   outline: var(--outline-primary);
+  user-select: none;
+}
+
+.panel {
+  background-color: transparent;
+  padding: 1rem;
+  font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+  position: absolute;
+  width: 100svmin;
+  top: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
 }
