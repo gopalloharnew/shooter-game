@@ -11,7 +11,7 @@ export class Enemy {
     this.radius = Math.floor(this.minRadius * (1 + Math.random() * 2));
     this.visibleRadius = this.radius;
     this.position = this.getRandomEnemyPosition();
-    this.speed = player.bulletSpeed / 3;
+    this.speed = player.bulletSpeed / 3; // Todo: make it random and increase difficulty with time
     this.directionAngle = Math.atan2(
       this.targetPosition.y - this.position.y,
       this.targetPosition.x - this.position.x

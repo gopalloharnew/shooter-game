@@ -6,6 +6,7 @@ import { ScoreIncrement } from "./ScoreIncrement.js";
 // Initializing Canvas
 const MAX_FPS = 60;
 const LOCAL_SCORE_KEY = "shooterHighScore";
+
 const canvas = document.querySelector("[data-game-canvas]");
 const canvasRect = canvas.getBoundingClientRect();
 let canvasSize;
@@ -20,12 +21,9 @@ const context = canvas.getContext("2d");
 const canvasBg = "hsla(222, 11%, 11%, 1)";
 const canvasBgOpaque = "hsla(222, 11%, 11%, 1)";
 const pointer = { position: { x: canvasSize / 2, y: canvasSize / 4 } };
-let animationId;
+let animationId, player;
 
-window.score = 0;
 let highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
-
-const player = new Player({ canvasSize, canvasBgOpaque });
 
 // animate
 let lastPaintTime;
@@ -41,99 +39,113 @@ function animate(currentTime) {
   context.fillRect(0, 0, canvasSize, canvasSize);
 
   player.update({ context, pointer });
+
   player.bullets.fired.forEach((bullet, bulletIndex) => {
-    // going beyond canvas
-    if (
-      bullet.position.x + bullet.radius < 0 ||
-      bullet.position.x + bullet.radius > player.canvasSize ||
-      bullet.position.y + bullet.radius < 0 ||
-      bullet.position.y + bullet.radius > player.canvasSize
-    ) {
-      setTimeout(() => {
-        player.bullets.fired.splice(bulletIndex, 1);
-      }, 0);
-    }
-
-    // collision with enemy
-    // Todo: separate this as a function
-    player.enemies.forEach((enemy, enemyIndex) => {
-      if (getDistanceBetween(enemy, bullet) <= enemy.radius + bullet.radius) {
-        for (let i = 0; i < Math.floor(enemy.radius); i++) {
-          player.debris.push(
-            new Particle({
-              position: bullet.position,
-              mainColor: enemy.color,
-              speed: player.bulletSpeed,
-              bulletRadius: bullet.radius,
-            })
-          );
-        }
-        enemy.radius -= bullet.radius;
-        if (enemy.radius <= enemy.minRadius) {
-          setTimeout(() => {
-            player.enemies.splice(enemyIndex, 1);
-          }, 0);
-          player.scoreIncrements.push(
-            new ScoreIncrement({
-              increment: 20,
-              bullet,
-            })
-          );
-        } else {
-          player.scoreIncrements.push(
-            new ScoreIncrement({
-              increment: 10,
-              bullet,
-            })
-          );
-        }
-        setTimeout(() => {
-          player.bullets.fired.splice(bulletIndex, 1);
-        }, 0);
-      }
-    });
-
+    bulletCollisionDetection({ bullet, bulletIndex });
     bullet.update({ context, deltaTime });
   });
 
   player.enemies.forEach((enemy) => {
-    if (
-      getDistanceBetween(player, enemy) <=
-      player.radius + player.ringWidth + enemy.radius
-    ) {
-      cancelAnimationFrame(player.animationId);
-    }
+    checkGameOver({ enemy });
     enemy.update({ context, deltaTime });
   });
 
-  player.debris.forEach((particle, particleIndex) => {
-    if (particle.opacity <= 0) {
-      setTimeout(() => {
-        player.debris.splice(particleIndex, 1);
-      }, 0);
-    }
-    particle.update({ context, deltaTime });
+  updateElementsAndRemoveTransparent({
+    arrays: [player.debris, player.scoreIncrements],
+    context,
+    deltaTime,
   });
-
-  player.scoreIncrements.forEach((scoreIncrement, scoreIncrementIndex) => {
-    scoreIncrement.update({ context, deltaTime });
-    if (scoreIncrement.opacity <= 0) {
-      player.scoreIncrements.splice(scoreIncrementIndex, 1);
-    }
-  });
-
-  // const frameRate = Math.floor(1000 / deltaTime);
-  // if (frameRate < 59) {
-  //   context.fillStyle = "red";
-  //   context.font = "25px sans-serif";
-  //   context.fillText(frameRate, 25, 25);
-  // }
 }
 
-context.fillStyle = canvasBgOpaque;
-context.fillRect(0, 0, canvasSize, canvasSize);
-animationId = window.requestAnimationFrame(animate);
-player.animationId = animationId;
+function bulletCollisionDetection({ bullet, bulletIndex }) {
+  bulletBeyondCanvasDetection({ bullet, bulletIndex });
+
+  player.enemies.forEach((enemy, enemyIndex) => {
+    if (getDistanceBetween(enemy, bullet) <= enemy.radius + bullet.radius) {
+      enemy.radius -= bullet.radius;
+      let enemyDie = enemy.radius <= enemy.minRadius;
+      addParticles({ enemy, bullet });
+      updateScore({ enemyDie, bullet });
+      if (enemyDie) {
+        setTimeout(() => {
+          player.enemies.splice(enemyIndex, 1);
+        }, 0);
+      }
+      setTimeout(() => {
+        player.bullets.fired.splice(bulletIndex, 1);
+      }, 0);
+    }
+  });
+}
+
+function updateScore({ enemyDie, bullet }) {
+  player.scoreIncrements.push(
+    new ScoreIncrement({
+      increment: enemyDie ? 20 : 10,
+      bullet,
+    })
+  );
+}
+
+function addParticles({ enemy, bullet }) {
+  for (let i = 0; i < Math.floor(enemy.radius); i++) {
+    player.debris.push(
+      new Particle({
+        position: bullet.position,
+        mainColor: enemy.color,
+        speed: player.bulletSpeed,
+        bulletRadius: bullet.radius,
+      })
+    );
+  }
+}
+
+function bulletBeyondCanvasDetection({ bullet, bulletIndex }) {
+  if (
+    bullet.position.x + bullet.radius < 0 ||
+    bullet.position.x + bullet.radius > player.canvasSize ||
+    bullet.position.y + bullet.radius < 0 ||
+    bullet.position.y + bullet.radius > player.canvasSize
+  ) {
+    setTimeout(() => {
+      player.bullets.fired.splice(bulletIndex, 1);
+    }, 0);
+  }
+}
+
+function checkGameOver({ enemy }) {
+  if (
+    getDistanceBetween(player, enemy) <=
+    player.radius + player.ringWidth + enemy.radius
+  ) {
+    cancelAnimationFrame(player.animationId);
+  }
+}
+
+function updateElementsAndRemoveTransparent({ arrays, context, deltaTime }) {
+  arrays.forEach((array) => {
+    array.forEach((element, elementIndex) => {
+      element.update({ context, deltaTime });
+      if (element.opacity <= 0) {
+        setTimeout(() => {
+          array.splice(elementIndex, 1);
+        }, 0);
+      }
+    });
+  });
+}
+
+function startGame() {
+  player = new Player({ canvasSize, canvasBgOpaque });
+  context.fillStyle = canvasBgOpaque;
+  context.fillRect(0, 0, canvasSize, canvasSize);
+  animationId = window.requestAnimationFrame(animate);
+  player.animationId = animationId;
+  window.score = 0;
+  document.querySelector("[data-score-span]").textContent = window.score;
+}
+
+startGame();
 
 // mouse
 function setPointerPosition(x, y) {
@@ -151,3 +163,4 @@ canvas.addEventListener("click", (e) => {
 });
 
 // Todo: add Keyboard controls
+// Todo: Play pause functionality
