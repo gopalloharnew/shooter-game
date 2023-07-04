@@ -23,6 +23,7 @@ export class Player {
       fired: [],
     };
     this.enemies = [];
+    this.debris = [];
     this.generateEnemy();
   }
 

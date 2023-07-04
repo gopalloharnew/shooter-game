@@ -1,5 +1,5 @@
 import { Player } from "./Player.js";
-import { Enemy } from "./Enemy.js";
+import { Particle } from "./Particle.js";
 import { getDistanceBetween } from "./utils.js";
 
 // Initializing Canvas
@@ -50,11 +50,24 @@ function animate(currentTime) {
     }
 
     // collision with enemy
+    // Todo: separate this as a function
     player.enemies.forEach((enemy, enemyIndex) => {
       if (getDistanceBetween(enemy, bullet) <= enemy.radius + bullet.radius) {
+        for (let i = 0; i < Math.floor(enemy.radius); i++) {
+          player.debris.push(
+            new Particle({
+              position: bullet.position,
+              mainColor: enemy.color,
+              speed: player.bulletSpeed,
+              bulletRadius: bullet.radius,
+            })
+          );
+        }
         enemy.radius -= bullet.radius;
         if (enemy.radius <= enemy.minRadius) {
-          player.enemies.splice(enemyIndex, 1);
+          setTimeout(() => {
+            player.enemies.splice(enemyIndex, 1);
+          }, 0);
         }
         setTimeout(() => {
           player.bullets.fired.splice(bulletIndex, 1);
@@ -75,9 +88,21 @@ function animate(currentTime) {
     enemy.update({ context, deltaTime });
   });
 
+  player.debris.forEach((particle, particleIndex) => {
+    if (particle.opacity <= 0) {
+      setTimeout(() => {
+        player.debris.splice(particleIndex, 1);
+      }, 0);
+    }
+    particle.update({ context, deltaTime });
+  });
+
   // const frameRate = Math.floor(1000 / deltaTime);
-  // context.font = "25px sans-serif";
-  // context.fillText(frameRate, 25, 25);
+  // if (frameRate < 59) {
+  //   context.fillStyle = "red";
+  //   context.font = "25px sans-serif";
+  //   context.fillText(frameRate, 25, 25);
+  // }
 }
 
 context.fillStyle = canvasBgOpaque;

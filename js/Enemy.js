@@ -20,7 +20,7 @@ export class Enemy {
       x: this.speed * Math.cos(this.directionAngle),
       y: this.speed * Math.sin(this.directionAngle),
     };
-    this.color = `hsl(${getRandomInteger(0, 360)}, 100%, 50%)`;
+    this.color = `hsla(${getRandomInteger(0, 360)}, 100%, 50%, 1)`;
   }
 
   getRandomEnemyPosition() {
@@ -59,6 +59,8 @@ export class Enemy {
     if (this.visibleRadius > this.radius) {
       this.visibleRadius -= (this.minRadius * 3 * deltaTime) / 1000;
     }
-    this.draw({ context });
+    if (this.visibleRadius > 0) {
+      this.draw({ context });
+    }
   }
 }
