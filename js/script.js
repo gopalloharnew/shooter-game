@@ -24,16 +24,21 @@ const canvasBgOpaque = "hsla(222, 11%, 11%, 1)";
 const pointer = { position: { x: canvasSize / 2, y: canvasSize / 4 } };
 let animationId, player;
 
+const playStateButton = document.querySelector("[data-play-button-state]");
 window.score = 0;
 window.highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
 renderHighScore();
 
 // animate
 let lastPaintTime;
+let isResuming = false;
 function animate(currentTime) {
   animationId = window.requestAnimationFrame(animate);
   player.animationId = animationId;
-  if (lastPaintTime === undefined) lastPaintTime = currentTime;
+  if (lastPaintTime === undefined || isResuming) {
+    lastPaintTime = currentTime;
+    isResuming = false;
+  }
   let deltaTime = currentTime - lastPaintTime;
   if (deltaTime < 1000 / MAX_FPS) return;
   lastPaintTime = currentTime;
@@ -130,7 +135,9 @@ function checkGameOver({ enemy }) {
 
 function gameOver() {
   cancelAnimationFrame(player.animationId);
+  player.gameOver = true;
   gameDialog.show({ text: "Game Over!", buttons: ["restartButton"] });
+  playStateButton.dataset.playButtonState = "hidden";
   if (window.score > window.highScore) {
     window.highScore = window.score;
     localStorage.setItem(LOCAL_SCORE_KEY, window.highScore);
@@ -169,7 +176,22 @@ function startGame() {
   canvasRect = canvas.getBoundingClientRect();
   document.querySelector("[data-score-span]").textContent = window.score;
   gameDialog.hide();
+  playStateButton.dataset.playButtonState = "pause";
   renderHighScore(false);
+}
+
+function pauseGame() {
+  playStateButton.dataset.playButtonState = "resume";
+  window.cancelAnimationFrame(animationId);
+  isResuming = true;
+  gameDialog.show({ text: "Paused", buttons: ["resumeButton"] });
+}
+
+function resumeGame() {
+  playStateButton.dataset.playButtonState = "pause";
+  animationId = window.requestAnimationFrame(animate);
+  player.animationId = animationId;
+  gameDialog.hide();
 }
 
 // mouse
@@ -189,7 +211,18 @@ canvas.addEventListener("click", (e) => {
 
 // Todo: add Keyboard controls
 // Todo: Play pause functionality
+playStateButton.addEventListener("click", () => {
+  const playButtonState = playStateButton.dataset.playButtonState;
+  if (playButtonState === "pause") {
+    pauseGame();
+  } else {
+    resumeGame();
+  }
+});
+
 const gameDialog = new GameDialog(document.querySelector("[data-game-dialog]"));
 gameDialog.startButton.addEventListener("click", startGame);
 gameDialog.restartButton.addEventListener("click", startGame);
+gameDialog.resumeButton.addEventListener("click", resumeGame);
 gameDialog.show({ text: "Start Game!", buttons: ["startButton"] });
+window.addEventListener("blur", pauseGame);

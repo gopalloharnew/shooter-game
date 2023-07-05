@@ -26,10 +26,13 @@ export class Player {
     this.debris = [];
     this.scoreIncrements = [];
     this.generateEnemy();
+    this.gameOver = false;
+    this.gamePaused = false;
   }
 
   generateEnemy() {
     setTimeout(() => {
+      // Todo: an entire new system for enemy generation is needed because of play pause functionality
       this.enemies.push(
         new Enemy({ canvasSize: this.canvasSize, player: this })
       );

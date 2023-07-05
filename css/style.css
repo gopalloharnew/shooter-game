@@ -50,6 +50,43 @@ body {
   justify-content: space-between;
 }
 
+.play-state-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  outline: transparent;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  pointer-events: all;
+}
+
+[data-play-button-state]::after {
+  content: "";
+  box-sizing: content-box;
+  border-style: solid;
+}
+
+[data-play-button-state="pause"]::after {
+  height: 1.25rem;
+  width: 0.5rem;
+  border-width: 0rem 0.25rem 0rem 0.25rem;
+  border-color: currentColor;
+}
+
+[data-play-button-state="resume"]::after {
+  height: 0;
+  width: 0;
+  border-width: calc(1rem / 1.73) 0rem calc(1rem / 1.73) 1rem;
+  border-color: transparent transparent transparent currentColor;
+}
+
+[data-play-button-state="hidden"] {
+  display: none;
+}
+
 .game-dialog {
   background-color: var(--dialog-bg);
   position: absolute;
