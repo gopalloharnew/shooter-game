@@ -9,8 +9,11 @@
 :root {
   --bg-primary: hsl(222, 11%, 8%);
   --bg-secondary: hsl(222, 11%, 11%);
+  --dialog-bg: hsla(222, 11%, 11%, 0.5);
   --text-primary: hsl(0, 0%, 100%);
   --outline-primary: 1px solid hsl(222, 11%, 22%);
+  --button-bg: hsl(222, 50%, 50%);
+  --button-bg-hover: hsl(222, 50%, 60%);
   color-scheme: dark;
 }
 
@@ -23,6 +26,8 @@ body {
   justify-content: center;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+  overflow: hidden;
 }
 
 .game-canvas {
@@ -37,11 +42,67 @@ body {
 .panel {
   background-color: transparent;
   padding: 1rem;
-  font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
   position: absolute;
   width: 100svmin;
   top: 0;
   pointer-events: none;
   display: flex;
   justify-content: space-between;
+}
+
+.game-dialog {
+  background-color: var(--dialog-bg);
+  position: absolute;
+  border: var(--outline-primary);
+  width: 80svmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 2svmin;
+  padding: 2svmin;
+  backdrop-filter: blur(4px);
+  transform: translate(0, 50svh);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.game-dialog.show {
+  transform: translate(0, 0svh);
+  opacity: 1;
+  pointer-events: initial;
+}
+
+.game-dialog-text {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.dialog-action-button-wrapper {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-action-button {
+  font: inherit;
+  border: none;
+  outline: transparent;
+  align-items: center;
+  background-color: var(--button-bg);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: none;
+}
+
+.visible-button {
+  display: flex;
+}
+
+.dialog-action-button:hover {
+  background-color: var(--button-bg-hover);
 }

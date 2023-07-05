@@ -2,13 +2,14 @@ import { Player } from "./Player.js";
 import { Particle } from "./Particle.js";
 import { getDistanceBetween } from "./utils.js";
 import { ScoreIncrement } from "./ScoreIncrement.js";
+import { GameDialog } from "./GameDialog.js";
 
 // Initializing Canvas
 const MAX_FPS = 60;
 const LOCAL_SCORE_KEY = "shooterHighScore";
 
 const canvas = document.querySelector("[data-game-canvas]");
-const canvasRect = canvas.getBoundingClientRect();
+let canvasRect = canvas.getBoundingClientRect();
 let canvasSize;
 if (window.innerWidth > window.innerHeight) {
   canvasSize = window.innerHeight * window.devicePixelRatio;
@@ -23,7 +24,9 @@ const canvasBgOpaque = "hsla(222, 11%, 11%, 1)";
 const pointer = { position: { x: canvasSize / 2, y: canvasSize / 4 } };
 let animationId, player;
 
-let highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
+window.score = 0;
+window.highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
+renderHighScore();
 
 // animate
 let lastPaintTime;
@@ -37,7 +40,10 @@ function animate(currentTime) {
 
   context.fillStyle = canvasBg;
   context.fillRect(0, 0, canvasSize, canvasSize);
+  updateAndRender({ deltaTime });
+}
 
+function updateAndRender({ deltaTime }) {
   player.update({ context, pointer });
 
   player.bullets.fired.forEach((bullet, bulletIndex) => {
@@ -118,8 +124,26 @@ function checkGameOver({ enemy }) {
     getDistanceBetween(player, enemy) <=
     player.radius + player.ringWidth + enemy.radius
   ) {
-    cancelAnimationFrame(player.animationId);
+    gameOver();
   }
+}
+
+function gameOver() {
+  cancelAnimationFrame(player.animationId);
+  gameDialog.show({ text: "Game Over!", buttons: ["restartButton"] });
+  if (window.score > window.highScore) {
+    window.highScore = window.score;
+    localStorage.setItem(LOCAL_SCORE_KEY, window.highScore);
+    renderHighScore(true);
+  } else {
+    renderHighScore(false);
+  }
+}
+
+function renderHighScore(isNew) {
+  document.querySelector("[data-high-score-span]").textContent = `${
+    isNew ? "New " : ""
+  }High Score: ${window.highScore}`;
 }
 
 function updateElementsAndRemoveTransparent({ arrays, context, deltaTime }) {
@@ -142,10 +166,11 @@ function startGame() {
   animationId = window.requestAnimationFrame(animate);
   player.animationId = animationId;
   window.score = 0;
+  canvasRect = canvas.getBoundingClientRect();
   document.querySelector("[data-score-span]").textContent = window.score;
+  gameDialog.hide();
+  renderHighScore(false);
 }
-
-startGame();
 
 // mouse
 function setPointerPosition(x, y) {
@@ -158,9 +183,13 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 canvas.addEventListener("click", (e) => {
-  player.bullets.loaded.push(1);
+  player?.bullets.loaded.push(1);
   setPointerPosition(e.x, e.y);
 });
 
 // Todo: add Keyboard controls
 // Todo: Play pause functionality
+const gameDialog = new GameDialog(document.querySelector("[data-game-dialog]"));
+gameDialog.startButton.addEventListener("click", startGame);
+gameDialog.restartButton.addEventListener("click", startGame);
+gameDialog.show({ text: "Start Game!", buttons: ["startButton"] });
