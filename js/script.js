@@ -174,7 +174,9 @@ function startGame() {
   player.animationId = animationId;
   window.score = 0;
   canvasRect = canvas.getBoundingClientRect();
-  document.querySelector("[data-score-span]").textContent = window.score;
+  document.querySelector(
+    "[data-score-span]"
+  ).textContent = `Score: ${window.score}`;
   gameDialog.hide();
   playStateButton.dataset.playButtonState = "pause";
   renderHighScore(false);
@@ -210,7 +212,6 @@ canvas.addEventListener("click", (e) => {
 });
 
 // Todo: add Keyboard controls
-// Todo: Play pause functionality
 playStateButton.addEventListener("click", () => {
   const playButtonState = playStateButton.dataset.playButtonState;
   if (playButtonState === "pause") {
@@ -226,7 +227,7 @@ gameDialog.restartButton.addEventListener("click", startGame);
 gameDialog.resumeButton.addEventListener("click", resumeGame);
 gameDialog.show({ text: "Start Game!", buttons: ["startButton"] });
 window.addEventListener("blur", () => {
-  if (!player.gameOver) {
+  if (!player?.gameOver) {
     pauseGame();
   }
 });

@@ -7,7 +7,9 @@ export class ScoreIncrement {
     this.opacity = 1;
     this.increment = increment;
     window.score += this.increment;
-    document.querySelector("[data-score-span]").textContent = window.score;
+    document.querySelector(
+      "[data-score-span]"
+    ).textContent = `Score: ${window.score}`;
   }
 
   get opacity() {

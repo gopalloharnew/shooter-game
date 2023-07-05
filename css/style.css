@@ -10,7 +10,7 @@
   --bg-primary: hsl(222, 11%, 8%);
   --bg-secondary: hsl(222, 11%, 11%);
   --dialog-bg: hsla(222, 11%, 11%, 0.5);
-  --text-primary: hsl(0, 0%, 100%);
+  --text-primary: hsla(222, 100%, 95%, 1);
   --outline-primary: 1px solid hsl(222, 11%, 22%);
   --button-bg: hsl(222, 50%, 50%);
   --button-bg-hover: hsl(222, 50%, 60%);
@@ -63,6 +63,14 @@ body {
   pointer-events: all;
 }
 
+.score-span-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  line-height: 2rem;
+  gap: 1em;
+}
+
 [data-play-button-state]::after {
   content: "";
   box-sizing: content-box;
@@ -80,7 +88,7 @@ body {
   height: 0;
   width: 0;
   border-width: calc(1rem / 1.73) 0rem calc(1rem / 1.73) 1rem;
-  border-color: transparent transparent transparent currentColor;
+  border-color: transparent transparent transparent var(--text-primary);
 }
 
 [data-play-button-state="hidden"] {
