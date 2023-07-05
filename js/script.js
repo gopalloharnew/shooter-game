@@ -225,4 +225,8 @@ gameDialog.startButton.addEventListener("click", startGame);
 gameDialog.restartButton.addEventListener("click", startGame);
 gameDialog.resumeButton.addEventListener("click", resumeGame);
 gameDialog.show({ text: "Start Game!", buttons: ["startButton"] });
-window.addEventListener("blur", pauseGame);
+window.addEventListener("blur", () => {
+  if (!player.gameOver) {
+    pauseGame();
+  }
+});
