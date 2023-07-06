@@ -25,19 +25,31 @@ export class Player {
     this.enemies = [];
     this.debris = [];
     this.scoreIncrements = [];
-    this.generateEnemy();
-    this.gameOver = false;
+    window.gameOver = false;
     this.gamePaused = false;
+    this.timeElapsed = 0;
+    this.nextEnemyTime = 0;
+    this.generateEnemy();
   }
 
   generateEnemy() {
-    setTimeout(() => {
-      // Todo: an entire new system for enemy generation is needed because of play pause functionality
+    let timeInteger = Math.floor(this.timeElapsed);
+    let isGap =
+      timeInteger % 15 === 0 ||
+      (timeInteger + 1) % 15 === 0 ||
+      (timeInteger - 1) % 15 === 0;
+    if (timeInteger != 0 && !isGap) {
       this.enemies.push(
         new Enemy({ canvasSize: this.canvasSize, player: this })
       );
-      this.generateEnemy();
-    }, 2000 + getRandomInteger(0, 2000));
+    }
+    this.updateNextEnemyTime();
+  }
+
+  updateNextEnemyTime() {
+    let timeVariable = 100 / (100 + this.timeElapsed);
+    let nextEnemyTime = this.nextEnemyTime + 1 + timeVariable;
+    this.nextEnemyTime = nextEnemyTime;
   }
 
   draw({ context }) {
@@ -86,7 +98,11 @@ export class Player {
     context.stroke();
   }
 
-  update({ context, pointer }) {
+  update({ context, deltaTime, pointer }) {
+    if (this.timeElapsed >= this.nextEnemyTime) {
+      this.generateEnemy();
+    }
+    this.timeElapsed += deltaTime / 1000;
     this.currentDirectionAngle =
       Math.PI +
       Math.atan2(

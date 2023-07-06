@@ -28,6 +28,7 @@ const playStateButton = document.querySelector("[data-play-button-state]");
 window.score = 0;
 window.highScore = localStorage.getItem(LOCAL_SCORE_KEY) || 0;
 renderHighScore();
+window.gameOver = true;
 
 // animate
 let lastPaintTime;
@@ -49,7 +50,7 @@ function animate(currentTime) {
 }
 
 function updateAndRender({ deltaTime }) {
-  player.update({ context, pointer });
+  player.update({ context, deltaTime, pointer });
 
   player.bullets.fired.forEach((bullet, bulletIndex) => {
     bulletCollisionDetection({ bullet, bulletIndex });
@@ -135,7 +136,7 @@ function checkGameOver({ enemy }) {
 
 function gameOver() {
   cancelAnimationFrame(player.animationId);
-  player.gameOver = true;
+  window.gameOver = true;
   gameDialog.show({ text: "Game Over!", buttons: ["restartButton"] });
   playStateButton.dataset.playButtonState = "hidden";
   if (window.score > window.highScore) {
@@ -178,6 +179,7 @@ function startGame() {
     "[data-score-span]"
   ).textContent = `Score: ${window.score}`;
   gameDialog.hide();
+  lastPaintTime = undefined;
   playStateButton.dataset.playButtonState = "pause";
   renderHighScore(false);
 }
@@ -227,7 +229,7 @@ gameDialog.restartButton.addEventListener("click", startGame);
 gameDialog.resumeButton.addEventListener("click", resumeGame);
 gameDialog.show({ text: "Start Game!", buttons: ["startButton"] });
 window.addEventListener("blur", () => {
-  if (!player?.gameOver) {
+  if (!window.gameOver) {
     pauseGame();
   }
 });
