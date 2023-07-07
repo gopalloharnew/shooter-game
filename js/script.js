@@ -188,7 +188,10 @@ function pauseGame() {
   playStateButton.dataset.playButtonState = "resume";
   window.cancelAnimationFrame(animationId);
   isResuming = true;
-  gameDialog.show({ text: "Paused", buttons: ["resumeButton"] });
+  gameDialog.show({
+    text: "Paused",
+    buttons: ["resumeButton", "restartButton"],
+  });
 }
 
 function resumeGame() {
